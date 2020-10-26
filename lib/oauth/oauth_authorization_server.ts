@@ -30,3 +30,8 @@ authorizationServer.enableGrantType("client_credentials", new DateInterval("15m"
 authorizationServer.enableGrantType("refresh_token", new DateInterval("15m"));
 
 export { authorizationServer as inMemoryAuthorizationServer };
+
+export enum SERVER_COOKIES {
+  user = "authorization_server__user",
+  authorized = "authorization_server__is_authorized",
+}

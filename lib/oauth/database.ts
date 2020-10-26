@@ -15,16 +15,18 @@ export const sampleUser: OAuthUser = {
 }
 
 export const sampleScope1: OAuthScope = {
-  name: "contacts.read"
+  name: "contacts.read",
+  description: "Allow read access to contacts",
 };
 
 export const sampleScope2: OAuthScope = {
-  name: "contacts.write"
+  name: "contacts.write",
+  description: "Allow write access to contacts",
 };
 
 export const sampleClient: OAuthClient = {
   allowedGrants: ["authorization_code"],
-  redirectUris: ["http://localhost:3000/callback"],
+  redirectUris: ["http://localhost:3000/oauth/callback"],
   scopes: [sampleScope1, sampleScope2],
   id: "abc123",
   name: "Example Client"

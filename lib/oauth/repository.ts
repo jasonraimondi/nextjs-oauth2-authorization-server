@@ -103,7 +103,8 @@ export const inMemoryAuthCodeRepository: OAuthAuthCodeRepository = {
   },
   async isRevoked(authCodeCode: string): Promise<boolean> {
     const authCode = await this.getByIdentifier(authCodeCode);
-    return Date.now() > authCode.expiresAt.getTime();
+    console.log({ authCode, authCodeCode }, inMemoryDatabase);
+    return Date.now() > new Date(authCode.expiresAt).getTime();
   },
   async getByIdentifier(authCodeCode: string): Promise<OAuthAuthCode> {
     return inMemoryDatabase.authCodes[authCodeCode];

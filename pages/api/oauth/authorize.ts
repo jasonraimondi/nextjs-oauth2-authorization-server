@@ -1,12 +1,13 @@
-import type { Request, Response } from "express";
-import { OAuthException, OAuthRequest } from "@jmondi/oauth2-server";
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { OAuthRequest } from "@jmondi/oauth2-server";
 
-import { inMemoryAuthorizationServer } from "../../../lib/oauth/oauth_authorization_server";
+import { inMemoryAuthorizationServer, SERVER_COOKIES } from "../../../lib/oauth/oauth_authorization_server";
 import * as querystring from "querystring";
+import { handleError } from "../../../lib/handle_error";
 
 const authorizationServer = inMemoryAuthorizationServer;
 
-export default async function(req: Request, res: Response) {
+export default async function(req: NextApiRequest, res: NextApiResponse) {
   const request = new OAuthRequest(req);
 
   try {
@@ -14,8 +15,8 @@ export default async function(req: Request, res: Response) {
     const authRequest = await authorizationServer.validateAuthorizationRequest(request);
 
     // You will probably redirect the user to a login endpoint.
-    if (!req.cookies.user) {
-      res.redirect("/login?" + querystring.stringify(req.query as any ?? {}))
+    if (!req.cookies[SERVER_COOKIES.user]) {
+      res.redirect("/oauth/login?" + querystring.stringify(req.query as any ?? {}))
       return;
     }
     // After login, the user should be redirected back with user in the session.
@@ -23,19 +24,20 @@ export default async function(req: Request, res: Response) {
     // The auth request object can be serialized and saved into a user's session.
 
     // Once the user has logged in set the user on the AuthorizationRequest
-    authRequest.user = JSON.parse(req.cookies.user);
+    const user = req.cookies[SERVER_COOKIES.user];
+    authRequest.user = JSON.parse(user);
 
     // Once the user has approved or denied the client update the status
     // (true = approved, false = denied)
     // authRequest.isAuthorizationApproved = getIsAuthorizationApprovedFromSession();
-    authRequest.isAuthorizationApproved = true;
+    authRequest.isAuthorizationApproved = !!req.cookies[SERVER_COOKIES.authorized];
 
     // If the user has not approved the client's authorization request,
     // the user should be redirected to the approval screen.
     if (!authRequest.isAuthorizationApproved) {
       // This form will ask the user to approve the client and the scopes requested.
       // "Do you authorize Jason to: read contacts? write contacts?"
-      res.redirect("/scopes?" + querystring.stringify(req.query as any ?? {}))
+      res.redirect("/oauth/verify_scopes?" + querystring.stringify(req.query as any ?? {}))
       return;
     }
 
@@ -50,16 +52,4 @@ export default async function(req: Request, res: Response) {
   } catch (e) {
     handleError(e, res);
   }
-}
-
-function handleError(e: any, res: Response) {
-  if (e instanceof OAuthException) {
-    res.status(e.status);
-    res.send({
-      status: e.status,
-      message: e.message,
-    });
-    return;
-  }
-  throw e;
 }

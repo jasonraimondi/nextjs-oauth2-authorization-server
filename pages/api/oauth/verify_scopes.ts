@@ -4,18 +4,21 @@ import { setCookie } from "nookies";
 import { inMemoryUserRepository } from "../../../lib/oauth/repository";
 import { SERVER_COOKIES } from "../../../lib/oauth/oauth_authorization_server";
 
-export default async function Login(req, res) {
+export default async function VerifyScopes(req, res) {
   if (req.method.toLowerCase() !== "post") {
     res.status(400);
     res.send("unsupported method");
     return;
   }
 
-  const { email, password } = req.body;
+  const { accepted } = req.body;
 
-  const user = await inMemoryUserRepository.getUserByCredentials(email, password)
+  if (accepted !== "true") {
+    res.redirect("/");
+    return;
+  }
 
-  setCookie({ res }, SERVER_COOKIES.user, JSON.stringify(user), {
+  setCookie({ res }, SERVER_COOKIES.authorized, "true", {
     path: "/",
     httpOnly: true,
   });
