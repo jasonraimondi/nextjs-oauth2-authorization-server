@@ -12,6 +12,6 @@ export default function Home() {
 
   return <div>
     <p>AccessToken: {JSON.stringify(accessToken)}</p>
-    <a href={loginUrl}>Redirect to Login</a>
+    <a href={loginUrl} style={{ backgroundColor: "lightblue", padding: 5, borderRadius: "5px"}}>Redirect to Login</a>
   </div>;
 }
