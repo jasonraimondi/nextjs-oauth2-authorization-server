@@ -11,8 +11,8 @@ export interface InMemory {
 export const sampleUser: OAuthUser = {
   id: "abc123",
   email: "jason@example.com",
-  password: "abc123"
-}
+  password: "abc123",
+};
 
 export const sampleScope1: OAuthScope = {
   name: "contacts.read",
@@ -24,12 +24,16 @@ export const sampleScope2: OAuthScope = {
   description: "Allow write access to contacts",
 };
 
+const url = process.env.NODE_ENV === "production"
+  ? "https://nextjs-oauth2-authorization-server.vercel.app/oauth/callback"
+  : "http://localhost:3000/oauth/callback";
+
 export const sampleClient: OAuthClient = {
   allowedGrants: ["authorization_code"],
-  redirectUris: ["http://localhost:3000/oauth/callback"],
+  redirectUris: [url],
   scopes: [sampleScope1, sampleScope2],
   id: "abc123",
-  name: "Example Client"
+  name: "Example Client",
 };
 
 export const inMemoryDatabase: InMemory = {
@@ -43,6 +47,6 @@ export const inMemoryDatabase: InMemory = {
     [sampleScope2.name]: sampleScope2,
   },
   users: {
-    [sampleUser.email]: sampleUser
+    [sampleUser.email]: sampleUser,
   },
 };
